@@ -60,19 +60,23 @@ if not before then
 end
 say("registry before: " .. before)
 
--- Pin heuristic: besides the success flag, no boolean should read true on a fresh
--- install. If one does, it may be ReaPack's pin flag - which makes syncs skip the
--- package and would time this test out through no fault of the trick.
+-- Pin check: U1's live run confirmed return #9 (r[10] here) is a numeric flags
+-- field that reads 0 on a clean install. Nonzero likely means ReaPack's pin flag -
+-- which makes syncs skip the package and would time this test out through no
+-- fault of the trick. Booleans are swept too, in case flags surface differently.
 do
   local ok, entry = pcall(reaper.ReaPack_GetOwner, reaper.GetResourcePath() .. "/" .. SCRIPT_REL)
   if ok and entry then
     local r = {pcall(reaper.ReaPack_GetEntryInfo, entry)}
     pcall(reaper.ReaPack_FreeEntry, entry)
     if r[1] then
-      local extra_true = 0
-      for i = 3, #r do if r[i] == true then extra_true = extra_true + 1 end end
-      if extra_true > 0 then
-        say("NOTE: " .. extra_true .. " boolean flag(s) besides the success flag read TRUE - one may be the PIN flag.")
+      local suspicious = {}
+      if type(r[10]) == "number" and r[10] ~= 0 then
+        suspicious[#suspicious + 1] = "flags field (return #9) = " .. tostring(r[10])
+      end
+      for i = 3, #r do if r[i] == true then suspicious[#suspicious + 1] = "return #" .. (i - 1) .. " = true" end end
+      if #suspicious > 0 then
+        say("NOTE: possible PIN flag set: " .. table.concat(suspicious, ", ") .. ".")
         say("If this test times out, right-click the dummy in ReaPack's browser, un-pin it, rerun, and report.")
       end
     end
