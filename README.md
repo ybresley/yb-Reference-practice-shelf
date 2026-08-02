@@ -75,6 +75,25 @@ is skipped by syncs and would fake a test failure.
    (our repo skipped, others normal), then recover with `04_restore` or by
    re-ticking it by hand. Report what each step showed.
 
+## Build phase — 05b (added 2026-08-02, after U0–U9 all passed)
+
+The prototype found one comfort failure (U6): every fetch launch flashed a black
+console window. The real feature is now BUILT in yb_Reference and ships a
+launch designed to be flash-free — `tests/05b_quiet_fetch.lua` proves it:
+
+1. Load `05b_quiet_fetch.lua` into the Action list like the others.
+2. Run it and **watch the screen until the summary prints** — two candidates
+   fire in sequence, each announced with a countdown: **A** = the shipped
+   wscript/VBS shim (must be flash-free), **B** = `cmd /c start /b` (flash
+   expected; observed for the record). It also prints the live returns of
+   `ReaPack_GetRepositoryInfo` — the one call U1 never exercised.
+3. Send Claude the full console output **plus your flash verdict for A and B**.
+   A clean = the shim's command line gets recorded in RESEARCH.md as proven.
+   A flashing = the badge feature stays parked; report and stop.
+
+Delete `<resource>/yb_05b_A.xml` and `yb_05b_B.xml` afterwards (the script
+deletes its own .vbs shim).
+
 ## Cleanup (after the whole prototype)
 
 - ReaPack → Browse packages → right-click the dummy → Uninstall.
