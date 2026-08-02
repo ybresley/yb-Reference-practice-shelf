@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<index version="1" name="yb_update_test">
+  <category name="Test">
+    <reapack name="yb_dummy_package.lua" type="script" desc="YB Dummy Package">
+      <version name="1.0" author="ybresley" time="2026-08-02T10:00:00Z">
+        <changelog><![CDATA[v1.0 - grey window]]></changelog>
+        <source main="main">https://raw.githubusercontent.com/ybresley/yb-reapack-test/main/versions/1.0/yb_dummy_package.lua</source>
+      </version>
+    </reapack>
+  </category>
+</index>
