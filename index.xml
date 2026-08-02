@@ -10,6 +10,10 @@
         <changelog><![CDATA[v1.1 - blue window]]></changelog>
         <source main="main">https://raw.githubusercontent.com/ybresley/yb-reapack-test/2f4181a69c1141ed7be6a7056188a7ed90749d4b/versions/1.1/yb_dummy_package.lua</source>
       </version>
+      <version name="1.2" author="ybresley" time="2026-08-02T12:00:00Z">
+        <changelog><![CDATA[v1.2 - green window]]></changelog>
+        <source main="main">https://raw.githubusercontent.com/ybresley/yb-reapack-test/2f4181a69c1141ed7be6a7056188a7ed90749d4b/versions/1.2/yb_dummy_package.lua</source>
+      </version>
     </reapack>
   </category>
 </index>
