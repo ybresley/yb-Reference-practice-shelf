@@ -19,8 +19,17 @@ end
 local ok, ret, err = pcall(reaper.ReaPack_AddSetRepository, REPO_NAME, REPO_URL, true, 2)
 say(string.format("AddSetRepository(enable=true, autoInstall=2) -> ok=%s, ret=%s, err=%s",
   tostring(ok), tostring(ret), tostring(err)))
+if not (ok and ret ~= false and ret ~= 0 and ret ~= nil) then
+  say("FAIL: the call itself failed - the repo may STILL be disabled or on autoInstall=1.")
+  say("Re-tick / fix it by hand in Manage repositories, and report this.")
+  return
+end
 local okq, errq = pcall(reaper.ReaPack_ProcessQueue, true)
 say("ProcessQueue(true) -> " .. (okq and "ok" or ("ERROR: " .. tostring(errq))))
+if not okq then
+  say("FAIL: ProcessQueue errored - check Manage repositories by hand, and report this.")
+  return
+end
 
 say("EXPECTED: nothing visible happened just now.")
 say("Check Manage repositories: the repo should be ticked, auto-install back on 'Use global setting'.")

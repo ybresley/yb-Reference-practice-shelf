@@ -10,6 +10,11 @@
 
 local MODE = "curl"   -- "curl" or "powershell"
 
+-- The catalog stage that should be live when this test runs (step 5 of the README
+-- runs it after Claude pushed the v1.1 catalog). Only informational: if the file
+-- arrives without it, that's GitHub's ~5-min cache lag, not a failure.
+local EXPECTED_VERSION = "1.1"
+
 local REPO_URL = "https://raw.githubusercontent.com/ybresley/yb-reapack-test/main/index.xml"
 
 local function say(s) reaper.ShowConsoleMsg(tostring(s) .. "\n") end
@@ -26,7 +31,11 @@ if MODE == "curl" then
   -- redirects, NEVER -k (it would disable TLS certificate checks).
   cmd = 'curl -f -L -o "' .. out_path .. '" "' .. REPO_URL .. '"'
 else
-  cmd = 'powershell.exe -windowstyle hidden -command "(new-object System.Net.WebClient).DownloadFile(\'' .. REPO_URL .. '\', \'' .. out_path .. '\')"'
+  -- Single quotes inside the PowerShell string are escaped by doubling them, so a
+  -- quote in the resource path can't break out of the string.
+  local ps_url = (REPO_URL:gsub("'", "''"))
+  local ps_out = (out_path:gsub("'", "''"))
+  cmd = 'powershell.exe -windowstyle hidden -command "(new-object System.Net.WebClient).DownloadFile(\'' .. ps_url .. '\', \'' .. ps_out .. '\')"'
 end
 
 say("cmd: " .. cmd)
@@ -41,15 +50,21 @@ local function poll()
   if f then
     local content = f:read("a") or ""
     f:close()
-    if content:find("<index", 1, true) then
-      say(string.format("file arrived after %d defer frames (%.2fs), %d bytes", frames, reaper.time_precise() - t0, #content))
+    -- Only the CLOSING tag proves the download finished - "<index" alone can be
+    -- a partial file still being written.
+    if content:find("</index>", 1, true) then
+      say(string.format("file arrived COMPLETE after %d defer frames (%.2fs), %d bytes", frames, reaper.time_precise() - t0, #content))
       say("starts with: " .. content:sub(1, 50):gsub("[\r\n].*", ""))
-      say("looks like the ReaPack index: YES")
+      if content:find('name="' .. EXPECTED_VERSION .. '"', 1, true) then
+        say("lists the expected stage (v" .. EXPECTED_VERSION .. "): YES")
+      else
+        say("lists the expected stage (v" .. EXPECTED_VERSION .. "): NO - likely GitHub's ~5-min cache still serving the old catalog. Wait a few minutes and rerun if you want, or just report it.")
+      end
       say("file kept for inspection at: " .. out_path)
       say("=== 05 (" .. MODE .. ") done - now the next MODE / the offline run ===")
       return
     end
-    -- file exists but isn't the index yet: still downloading, or a failed fetch
+    -- file exists but isn't complete yet: still downloading, or a failed fetch
     -- left a partial - keep watching until the timeout says which.
   end
   if reaper.time_precise() - t0 > 20 then

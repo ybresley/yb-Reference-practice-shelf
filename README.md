@@ -32,14 +32,16 @@ this whole repo gets deleted (see Cleanup).
 
 Keep ReaPack's own windows (Manage repositories / Browse packages) **closed**
 while running scripts 02 / 03 / 04 / 07 — they change repo settings and an open
-manager could fight them.
+manager could fight them. And throughout the whole run: **never pin the package
+and never install a version by hand** unless a step says so — a pinned package
+is skipped by syncs and would fake a test failure.
 
 ## Test run order
 
 1. **`01_signatures`** (U1+U2) — validates the reconstructed API calls.
    Expect: an entry handle, a labelled dump of every GetEntryInfo return
-   (return #7 should be "1.0"), a clean FreeEntry, and the five comparisons
-   signed positive / zero / negative / negative / positive.
+   (return #1 the success flag, #7 should be "1.0"), a clean FreeEntry, and the
+   five comparisons signed positive / zero / negative / negative / positive.
    **→ CHECKPOINT: send Claude the output.** Claude pushes the catalog listing
    v1.1 and confirms GitHub is actually serving it (its cache lags ~5 min),
    then you continue.
@@ -47,24 +49,27 @@ manager could fight them.
    Expect: nothing visible happens; after ~12s the console prints "Gate held".
 3. **`03_update_trick`** (U3) — the real one-button update.
    Expect: ReaPack's Progress window, a Report listing ONLY the dummy update,
-   the script printing the registry change within ~90s — and no other repo's
-   packages touched. Relaunch the dummy: **blue** v1.1.
+   the script printing the version advancing (PASS) within ~90s — and no other
+   repo's packages touched. Relaunch the dummy: **blue** v1.1.
 4. **`04_restore`** (U5) — puts auto-install back to "use global setting".
    Expect: totally silent; Manage repositories shows the repo enabled.
 5. **`05_background_fetch`** (U6) — the badge's download mechanism, three runs:
    with `MODE = "curl"` as shipped; edited to `MODE = "powershell"`; and once
    with Wi-Fi off (expect the silent 20s timeout, no error dialogs). Watch for
-   console-window flashes and UI stutter each time.
+   console-window flashes and UI stutter each time. **Turn Wi-Fi back on.**
    **→ CHECKPOINT: send output.** Claude pushes the v1.2 catalog + confirms the
    cache again.
-6. **U7 (old code keeps running):** launch the dummy (blue 1.1), **leave its
+6. **`06_browse_filter`** (U8) — the official fallback path, run NOW while the
+   v1.2 update is still pending so the menu has something to offer. Expect:
+   ReaPack's browser opens pre-filtered to EXACTLY one row; right-click offers
+   "Update to v1.2" and a Versions submenu. **Look, don't click Update** — the
+   next step needs that update still pending. Close the browser after. If it
+   opens empty, swap the FILTER lines as commented in the script and rerun;
+   report which form worked.
+7. **U7 (old code keeps running):** launch the dummy (blue 1.1), **leave its
    window open**, run `03_update_trick` again. Expect: the window keeps saying
    1.1 while the Report says 1.2 installed; close + relaunch → **green** 1.2.
    Run `04_restore` after.
-7. **`06_browse_filter`** (U8) — the official fallback path. Expect: ReaPack's
-   browser opens pre-filtered to EXACTLY one row; right-click offers
-   Update/Versions. If it opens empty, swap the FILTER lines as commented in
-   the script and rerun; report which form worked.
 8. **`07_crash_window`** (U9) — simulates dying mid-trick (repo left disabled).
    Check Manage repositories (unticked), optionally run a global Synchronize
    (our repo skipped, others normal), then recover with `04_restore` or by

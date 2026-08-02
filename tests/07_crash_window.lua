@@ -24,8 +24,16 @@ end
 local ok, ret, err = pcall(reaper.ReaPack_AddSetRepository, REPO_NAME, REPO_URL, false, 2)
 say(string.format("AddSetRepository(enable=false) -> ok=%s, ret=%s, err=%s",
   tostring(ok), tostring(ret), tostring(err)))
+if not (ok and ret ~= false and ret ~= 0 and ret ~= nil) then
+  say("ABORT: the disable call FAILED - the crash-window state was NOT created. Report this.")
+  return
+end
 local okq, errq = pcall(reaper.ReaPack_ProcessQueue, true)
 say("ProcessQueue(true) -> " .. (okq and "ok" or ("ERROR: " .. tostring(errq))))
+if not okq then
+  say("ABORT: ProcessQueue errored - the repo state is uncertain; check Manage repositories, and report this.")
+  return
+end
 
 say("The repo is now DISABLED - this is the crash window's leftover state.")
 say("Work through the 3 checks in this script's header and report each.")

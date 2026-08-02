@@ -42,6 +42,7 @@ end
 
 local entry = try_getowner("absolute path", abs)
 if not entry then entry = try_getowner("resource-relative path", SCRIPT_REL) end
+if not entry then entry = try_getowner("absolute, backslashes", (abs:gsub("/", "\\"))) end
 
 if entry then
   local r = {pcall(reaper.ReaPack_GetEntryInfo, entry)}
@@ -51,8 +52,9 @@ if entry then
     for i = 2, #r do
       say(string.format("  return #%d: [%s] %s", i - 1, type(r[i]), tostring(r[i])))
     end
-    say("  -> the reconstruction expects return #7 to be the installed version ('1.0').")
-    say("     If the version string sits at a DIFFERENT position, that's the finding to report.")
+    say("  -> the reconstruction expects return #1 to be the API's own success flag (true)")
+    say("     and return #7 to be the installed version ('1.0').")
+    say("     If either sits at a DIFFERENT position, that's the finding to report.")
   else
     say("GetEntryInfo pcall ERROR: " .. tostring(r[2]))
   end

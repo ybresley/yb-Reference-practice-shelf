@@ -1,13 +1,13 @@
--- yb_dummy_package.lua — throwaway ReaPack update-test dummy for the yb_Reference
+-- yb_dummy_package.lua - throwaway ReaPack update-test dummy for the yb_Reference
 -- update-feature prototype (HANDOFF.md items U0-U9). Nothing here ships; delete when done.
 -- The window shows the version baked into THIS file next to what ReaPack's registry
--- says is installed — during U7 the file on disk updates while this keeps running old code.
+-- says is installed - during U7 the file on disk updates while this keeps running old code.
 local VERSION = "1.3"
-local BG = {0.42, 0.13, 0.13}  -- 1.0 grey · 1.1 blue · 1.2 green · 1.3 red: instant visual version cue
+local BG = {0.42, 0.13, 0.13}  -- 1.0 grey / 1.1 blue / 1.2 green / 1.3 red: instant visual version cue
 
 local self_path = ({reaper.get_action_context()})[2]
 
--- Read our own installed version from ReaPack's registry — the exact pattern the real
+-- Read our own installed version from ReaPack's registry - the exact pattern the real
 -- update feature will use (GetOwner -> GetEntryInfo, version = 7th return -> FreeEntry).
 local registry_line
 if not (reaper.APIExists and reaper.APIExists("ReaPack_GetOwner")) then
@@ -20,10 +20,12 @@ else
     registry_line = "registry: no owner (" .. tostring(err) .. ")"
   else
     local r = {pcall(reaper.ReaPack_GetEntryInfo, entry)}
-    if r[1] then
-      registry_line = "registry says installed version: " .. tostring(r[8])
-    else
+    if not r[1] then
       registry_line = "registry: GetEntryInfo errored: " .. tostring(r[2])
+    elseif r[2] == false or r[2] == 0 or r[2] == nil then
+      registry_line = "registry: GetEntryInfo returned FAILURE (retval = " .. tostring(r[2]) .. ")"
+    else
+      registry_line = "registry says installed version: " .. tostring(r[8])
     end
     pcall(reaper.ReaPack_FreeEntry, entry)
   end
