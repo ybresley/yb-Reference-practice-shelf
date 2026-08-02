@@ -79,7 +79,8 @@ local vbs   = res .. "/yb_05b_shim.vbs"
 -- hand — this harness is a separate repo). Windows paths and URLs cannot contain
 -- double quotes, so doubling quotes around them inside VBS strings is safe; the
 -- PowerShell arguments are single-quoted with any single quotes doubled.
--- --max-time 30 bounds a stalled curl so no invisible zombie outlives the test.
+-- --max-time 15 keeps a stalled curl inside the 20s watch window (Codex,
+-- 2026-08-02 review) so the fallback can still land while the poll watches.
 local function write_shim(out_path)
   local ps_url = (REPO_URL:gsub("'", "''"))
   local ps_out = (out_path:gsub("'", "''"))
@@ -87,7 +88,7 @@ local function write_shim(out_path)
     'On Error Resume Next',
     'Set sh = CreateObject("WScript.Shell")',
     'Set fso = CreateObject("Scripting.FileSystemObject")',
-    'sh.Run "curl -f -L --max-time 30 -o ""' .. out_path .. '"" ""' .. REPO_URL .. '""", 0, True',
+    'sh.Run "curl -f -L --max-time 15 -o ""' .. out_path .. '"" ""' .. REPO_URL .. '""", 0, True',
     'ok = False',
     'If fso.FileExists("' .. out_path .. '") Then If fso.GetFile("' .. out_path .. '").Size > 0 Then ok = True',
     "If Not ok Then sh.Run \"powershell.exe -windowstyle hidden -command \"\"(new-object System.Net.WebClient).DownloadFile('"
