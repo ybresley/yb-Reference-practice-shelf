@@ -94,6 +94,21 @@ launch designed to be flash-free — `tests/05b_quiet_fetch.lua` proves it:
 Delete `<resource>/yb_05b_A.xml` and `yb_05b_B.xml` afterwards (the script
 deletes its own .vbs shim).
 
+### Installing the REAL tool from this shelf (checklist U12–U17)
+
+The live catalog now also serves **yb_Reference 0.2.0** (category "Tools",
+trees in `tool/`, built by `scripts/gen_tool_index.sh`). Install: Extensions →
+ReaPack → Browse packages… → search "yb_Reference" → right-click → Install
+v0.2.0 → OK/Apply. Run it from the Action list ("yb_Reference.lua" under the
+yb_update_test scripts). Do NOT pin it and do NOT install a version from the
+Versions submenu — picking a specific version pins it and wrecks the tests.
+
+**→ CHECKPOINT after installing:** tell Claude, who pushes the staged
+`index-tool-0.2.1.xml` live and confirms GitHub is serving it — only then do
+the badge/update items (U12 onward) have something to find. The 0.2.1 build's
+only real change: its title bar reads "yb_Reference 0.2.1", so a relaunch
+visibly runs the new code.
+
 ## Cleanup (after the whole prototype)
 
 - ReaPack → Browse packages → right-click the dummy → Uninstall.
