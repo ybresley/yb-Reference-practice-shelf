@@ -31,6 +31,11 @@
 --
 -- Copy ALL console output back to Claude, plus your flash verdict per candidate.
 
+-- Which candidates to fire this run: "AB" = both, "A" or "B" = just that one.
+-- The 2026-08-05 run saw ONE flash but couldn't pin it on A or B — set "A" and
+-- rerun (a few times if you like; it's quick): one launch, one verdict.
+local RUN = "AB"
+
 local REPO_URL = "https://raw.githubusercontent.com/ybresley/yb-reapack-test/main/index.xml"
 
 local function say(s) reaper.ShowConsoleMsg(tostring(s) .. "\n") end
@@ -118,6 +123,16 @@ local candidates = {
     end,
   },
 }
+
+if RUN ~= "AB" then
+  local keep = {}
+  for _, c in ipairs(candidates) do
+    if c.key == RUN then keep[#keep + 1] = c end
+  end
+  candidates = keep
+  say("")
+  say("RUN = \"" .. RUN .. "\": firing ONLY candidate " .. RUN .. " this run.")
+end
 
 -- One state machine over defer frames: countdown -> launch -> poll -> next.
 local idx, phase, t0, frames, gap_until = 1, "countdown", nil, 0, reaper.time_precise() + 3
