@@ -284,6 +284,44 @@
         <source file="lib/updater.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.6/lib/updater.lua</source>
         <source file="lib/vendor/json.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.6/lib/vendor/json.lua</source>
       </version>
+      <version name="0.2.7" author="ybresley" time="2026-08-05T17:00:00Z">
+        <changelog><![CDATA[v0.2.7 - update-feature checklist stage]]></changelog>
+        <source main="main">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/yb_Reference.lua</source>
+        <source main="main" file="yb_Reference_ToggleReferenceMode.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/yb_Reference_ToggleReferenceMode.lua</source>
+        <source file="assets/cursors/drag_copy.cur">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/assets/cursors/drag_copy.cur</source>
+        <source file="assets/fonts/LICENSE-Lucide.txt">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/assets/fonts/LICENSE-Lucide.txt</source>
+        <source file="assets/fonts/lucide.ttf">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/assets/fonts/lucide.ttf</source>
+        <source file="lib/core/analysis.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/core/analysis.lua</source>
+        <source file="lib/core/categories.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/core/categories.lua</source>
+        <source file="lib/core/importer.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/core/importer.lua</source>
+        <source file="lib/core/library_store.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/core/library_store.lua</source>
+        <source file="lib/core/pins.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/core/pins.lua</source>
+        <source file="lib/core/schema.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/core/schema.lua</source>
+        <source file="lib/core/search.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/core/search.lua</source>
+        <source file="lib/core/trash.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/core/trash.lua</source>
+        <source file="lib/core/update_check.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/core/update_check.lua</source>
+        <source file="lib/dragout.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/dragout.lua</source>
+        <source file="lib/library_service.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/library_service.lua</source>
+        <source file="lib/loudness.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/loudness.lua</source>
+        <source file="lib/peaks.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/peaks.lua</source>
+        <source file="lib/pins_service.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/pins_service.lua</source>
+        <source file="lib/preview.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/preview.lua</source>
+        <source file="lib/project_state.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/project_state.lua</source>
+        <source file="lib/reaper_api.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/reaper_api.lua</source>
+        <source file="lib/reference.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/reference.lua</source>
+        <source file="lib/ui/app.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/app.lua</source>
+        <source file="lib/ui/browser.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/browser.lua</source>
+        <source file="lib/ui/dropzone.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/dropzone.lua</source>
+        <source file="lib/ui/icons.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/icons.lua</source>
+        <source file="lib/ui/popups.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/popups.lua</source>
+        <source file="lib/ui/theme.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/theme.lua</source>
+        <source file="lib/ui/transport.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/transport.lua</source>
+        <source file="lib/ui/waveform.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/waveform.lua</source>
+        <source file="lib/ui/widgets.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/widgets.lua</source>
+        <source file="lib/ui/window.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/ui/window.lua</source>
+        <source file="lib/updater.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/updater.lua</source>
+        <source file="lib/vendor/json.lua">https://raw.githubusercontent.com/ybresley/yb-reapack-test/3b9713f11c67946aaa5c654d449b2b6542896cc8/tool/0.2.7/lib/vendor/json.lua</source>
+      </version>
     </reapack>
   </category>
 </index>
