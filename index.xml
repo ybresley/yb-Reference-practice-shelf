@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="yb-Reference Practice Shelf" commit="6ec4017a20509fd2ba4c6e9559c429387974a230">
+<index version="1" name="yb-Reference Practice Shelf" commit="dd0b2c25e026315bd8b356ba2654ecf150ee3f1f">
   <category name="Tools">
     <reapack name="yb-Reference_TEST.lua" type="script" desc="yb-Reference TEST · packaging rehearsal">
       <metadata>
@@ -84,6 +84,67 @@ yoni.ybtools@gmail.com
         <source file="CHANGELOG.md">https://github.com/ybresley/yb-Reference-practice-shelf/raw/6ec4017a20509fd2ba4c6e9559c429387974a230/Tools/CHANGELOG.md</source>
         <source main="main" file="yb-Reference_TEST_ToggleReferenceMode.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/6ec4017a20509fd2ba4c6e9559c429387974a230/Tools/yb-Reference_TEST_ToggleReferenceMode.lua</source>
       </version>
+      <version name="0.2.13" author="Yoni Bresley" time="2026-08-17T10:43:11Z">
+        <source main="main">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/yb-Reference_TEST.lua</source>
+        <source file="lib/core/analysis.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/analysis.lua</source>
+        <source file="lib/core/categories.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/categories.lua</source>
+        <source file="lib/core/changelog.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/changelog.lua</source>
+        <source file="lib/core/demo.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/demo.lua</source>
+        <source file="lib/core/feedback.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/feedback.lua</source>
+        <source file="lib/core/importer.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/importer.lua</source>
+        <source file="lib/core/library_location.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/library_location.lua</source>
+        <source file="lib/core/library_store.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/library_store.lua</source>
+        <source file="lib/core/match.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/match.lua</source>
+        <source file="lib/core/pins.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/pins.lua</source>
+        <source file="lib/core/ruler.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/ruler.lua</source>
+        <source file="lib/core/schema.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/schema.lua</source>
+        <source file="lib/core/search.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/search.lua</source>
+        <source file="lib/core/span.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/span.lua</source>
+        <source file="lib/core/techfacts.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/techfacts.lua</source>
+        <source file="lib/core/trash.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/trash.lua</source>
+        <source file="lib/core/update_check.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/update_check.lua</source>
+        <source file="lib/core/walkthrough.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/core/walkthrough.lua</source>
+        <source file="lib/dragout.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/dragout.lua</source>
+        <source file="lib/feedback.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/feedback.lua</source>
+        <source file="lib/holders.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/holders.lua</source>
+        <source file="lib/library_service.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/library_service.lua</source>
+        <source file="lib/loudness.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/loudness.lua</source>
+        <source file="lib/peaks.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/peaks.lua</source>
+        <source file="lib/pins_service.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/pins_service.lua</source>
+        <source file="lib/preview.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/preview.lua</source>
+        <source file="lib/product_error.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/product_error.lua</source>
+        <source file="lib/project_state.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/project_state.lua</source>
+        <source file="lib/reaper_api.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/reaper_api.lua</source>
+        <source file="lib/reference.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/reference.lua</source>
+        <source file="lib/ui/app.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/app.lua</source>
+        <source file="lib/ui/browser.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/browser.lua</source>
+        <source file="lib/ui/dropzone.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/dropzone.lua</source>
+        <source file="lib/ui/focus.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/focus.lua</source>
+        <source file="lib/ui/icons.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/icons.lua</source>
+        <source file="lib/ui/library_recovery.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/library_recovery.lua</source>
+        <source file="lib/ui/matchwin.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/matchwin.lua</source>
+        <source file="lib/ui/newtrack_strip.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/newtrack_strip.lua</source>
+        <source file="lib/ui/popups.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/popups.lua</source>
+        <source file="lib/ui/refpicker.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/refpicker.lua</source>
+        <source file="lib/ui/settings.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/settings.lua</source>
+        <source file="lib/ui/theme.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/theme.lua</source>
+        <source file="lib/ui/tips.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/tips.lua</source>
+        <source file="lib/ui/transport.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/transport.lua</source>
+        <source file="lib/ui/walkthrough.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/walkthrough.lua</source>
+        <source file="lib/ui/waveform.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/waveform.lua</source>
+        <source file="lib/ui/whatsnew.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/whatsnew.lua</source>
+        <source file="lib/ui/widgets.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/widgets.lua</source>
+        <source file="lib/ui/window.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/ui/window.lua</source>
+        <source file="lib/updater.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/updater.lua</source>
+        <source file="lib/vendor/json.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/lib/vendor/json.lua</source>
+        <source file="assets/fonts/lucide.ttf">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/assets/fonts/lucide.ttf</source>
+        <source file="assets/fonts/LICENSE-Lucide.txt">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/assets/fonts/LICENSE-Lucide.txt</source>
+        <source file="assets/cursors/drag_copy.cur">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/assets/cursors/drag_copy.cur</source>
+        <source file="assets/windows/folder_picker.ps1">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/assets/windows/folder_picker.ps1</source>
+        <source file="assets/windows/folder_picker.vbs">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/assets/windows/folder_picker.vbs</source>
+        <source file="CHANGELOG.md">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/CHANGELOG.md</source>
+        <source main="main" file="yb-Reference_TEST_ToggleReferenceMode.lua">https://github.com/ybresley/yb-Reference-practice-shelf/raw/dd0b2c25e026315bd8b356ba2654ecf150ee3f1f/Tools/yb-Reference_TEST_ToggleReferenceMode.lua</source>
+      </version>
     </reapack>
   </category>
   <metadata>
@@ -109,7 +170,7 @@ yoni.ybtools@gmail.com
 {\pard \ql \f0 \fs24 \sa180 \li360 \fi-360\ls1\ilvl0\tx360 {\listtext\tab 7.\tab} Open the Action List and run {\b yb-Reference TEST \u183 ? packaging rehearsal}.\sa180\par}
 {\pard \ql \f0 \fs24 \sa180 \li0 \fi0 Search for {\b ToggleReferenceMode} in the Action List to find the companion TEST action and assign it to a temporary hotkey.\par}
 {\pard \ql \f0 \fs24 \sa180 \li0 \fi0 \outlinelevel1 \b \fs32 Current rehearsal\par}
-{\pard \ql \f0 \fs24 \sa0 \li360 \fi-360\ls2\ilvl0\tx360 {\listtext\tab \bullet \tab} TEST package: {\b 0.2.12}\par}
+{\pard \ql \f0 \fs24 \sa0 \li360 \fi-360\ls2\ilvl0\tx360 {\listtext\tab \bullet \tab} TEST package: {\b 0.2.13}\par}
 {\pard \ql \f0 \fs24 \sa0 \li360 \fi-360\ls2\ilvl0\tx360 {\listtext\tab \bullet \tab} Source snapshot: clean {\f1 \fs24 main} commit {\f1 \fs24 fbcf00c}\par}
 {\pard \ql \f0 \fs24 \sa0 \li360 \fi-360\ls2\ilvl0\tx360 {\listtext\tab \bullet \tab} Automated checks: {\b 700 passed, 0 failed}\sa180\par}
 {\pard \ql \f0 \fs24 \sa180 \li0 \fi0 Every changed TEST build gets a new version number. Existing versions are not silently replaced, so an installed copy and its feedback reports can always be identified.\par}
