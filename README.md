@@ -1,125 +1,32 @@
-# yb-reapack-test — throwaway update-feature prototype
+# yb-Reference practice shelf
 
-A disposable ReaPack repository + test scripts proving the mechanisms behind
-**yb_Reference's planned in-app update feature** (its HANDOFF.md checklist U0–U9)
-*before* any real code is built. Nothing here ships. When the prototype is done,
-this whole repo gets deleted (see Cleanup).
+This repository serves disposable **yb-Reference TEST** packages for installation and update rehearsals. It is not the beta or release shelf.
 
-## The moving parts
+Use these packages only in a portable or otherwise disposable REAPER installation. Do not install them over your normal yb-Reference copy.
 
-- `index.xml` — the ReaPack catalog REAPER imports. It starts by listing only
-  v1.0; Claude advances it from `staging/` at the marked checkpoints.
-- `versions/1.0 … 1.3/yb_dummy_package.lua` — the dummy tool. Its window shows
-  the version baked into the file **and** what ReaPack's registry says is
-  installed. Colour = version: **1.0 grey · 1.1 blue · 1.2 green** (1.3 red is a
-  spare stage, only used if a test stage gets burned).
-- `tests/01…07_*.lua` — the scratch scripts run in REAPER. Each prints to the
-  ReaScript console; copy the output back to Claude after each.
+## Install the current practice package
 
-## One-time setup (finishes U0)
+1. In REAPER, choose **Extensions → ReaPack → Import repositories…**
+2. Paste:
 
-1. **ReaPack options:** Extensions → ReaPack → Manage repositories → Options…
-   Note whether **"Install new packages when synchronizing"** is ticked, then
-   make sure it is **UNTICKED** (the U4 test needs it off; restore it in Cleanup).
-2. **Import the repo:** Extensions → ReaPack → Import repositories… → paste
-   `https://raw.githubusercontent.com/ybresley/yb-reapack-test/main/index.xml`
-3. **Install the dummy:** Extensions → ReaPack → Browse packages… → search
-   "dummy" → right-click the row → Install v1.0 → OK/Apply.
-4. **Load the test scripts:** Actions → Show action list… → New action… →
-   Load ReaScript… → multi-select all seven files in this folder's `tests/`.
-5. **Sanity run:** run the dummy from the Action list → a **grey** window saying
-   "FILE version 1.0" and "registry says installed version: 1.0".
+   ```text
+   https://raw.githubusercontent.com/ybresley/yb-Reference-practice-shelf/main/index.xml
+   ```
 
-Keep ReaPack's own windows (Manage repositories / Browse packages) **closed**
-while running scripts 02 / 03 / 04 / 07 — they change repo settings and an open
-manager could fight them. And throughout the whole run: **never pin the package
-and never install a version by hand** unless a step says so — a pinned package
-is skipped by syncs and would fake a test failure.
+3. Choose **Extensions → ReaPack → Browse packages…**
+4. Search for **yb-Reference TEST**.
+5. Select it, choose **Install**, then select **Apply**.
+6. Restart REAPER.
+7. Open the Action List and run **yb-Reference TEST · packaging rehearsal**.
 
-## Test run order
+Search for **ToggleReferenceMode** in the Action List to find the companion TEST action and assign it to a temporary hotkey.
 
-1. **`01_signatures`** (U1+U2) — validates the reconstructed API calls.
-   Expect: an entry handle, a labelled dump of every GetEntryInfo return
-   (return #1 the success flag, #7 should be "1.0"), a clean FreeEntry, and the
-   five comparisons signed positive / zero / negative / negative / positive.
-   **→ CHECKPOINT: send Claude the output.** Claude pushes the catalog listing
-   v1.1 and confirms GitHub is actually serving it (its cache lags ~5 min),
-   then you continue.
-2. **`02_gate_check`** (U4) — the trick with autoInstall=2 + global checkbox off.
-   Expect: nothing visible happens; after ~12s the console prints "Gate held".
-3. **`03_update_trick`** (U3) — the real one-button update.
-   Expect: ReaPack's Progress window, a Report listing ONLY the dummy update,
-   the script printing the version advancing (PASS) within ~90s — and no other
-   repo's packages touched. Relaunch the dummy: **blue** v1.1.
-4. **`04_restore`** (U5) — puts auto-install back to "use global setting".
-   Expect: totally silent; Manage repositories shows the repo enabled.
-5. **`05_background_fetch`** (U6) — the badge's download mechanism, three runs:
-   with `MODE = "curl"` as shipped; edited to `MODE = "powershell"`; and once
-   with Wi-Fi off (expect the silent 20s timeout, no error dialogs). Watch for
-   console-window flashes and UI stutter each time. **Turn Wi-Fi back on.**
-   **→ CHECKPOINT: send output.** Claude pushes the v1.2 catalog + confirms the
-   cache again.
-6. **`06_browse_filter`** (U8) — the official fallback path, run NOW while the
-   v1.2 update is still pending so the menu has something to offer. Expect:
-   ReaPack's browser opens pre-filtered to EXACTLY one row; right-click offers
-   "Update to v1.2" and a Versions submenu. **Look, don't click Update** — the
-   next step needs that update still pending. Close the browser after. If it
-   opens empty, swap the FILTER lines as commented in the script and rerun;
-   report which form worked.
-7. **U7 (old code keeps running):** launch the dummy (blue 1.1), **leave its
-   window open**, run `03_update_trick` again. Expect: the window keeps saying
-   1.1 while the Report says 1.2 installed; close + relaunch → **green** 1.2.
-   Run `04_restore` after.
-8. **`07_crash_window`** (U9) — simulates dying mid-trick (repo left disabled).
-   Check Manage repositories (unticked), optionally run a global Synchronize
-   (our repo skipped, others normal), then recover with `04_restore` or by
-   re-ticking it by hand. Report what each step showed.
+## Current rehearsal
 
-## Build phase — 05b (added 2026-08-02, after U0–U9 all passed)
+- TEST package: **0.2.12**
+- Source snapshot: clean `main` commit `fbcf00c`
+- Automated checks: **700 passed, 0 failed**
 
-The prototype found one comfort failure (U6): every fetch launch flashed a black
-console window. The real feature is now BUILT in yb_Reference and ships a
-launch designed to be flash-free — `tests/05b_quiet_fetch.lua` proves it:
+Every changed TEST build gets a new version number. Existing versions are not silently replaced, so an installed copy and its feedback reports can always be identified.
 
-1. Load `05b_quiet_fetch.lua` into the Action list like the others.
-2. Run it and **watch the screen until the summary prints** — two candidates
-   fire in sequence, each announced with a countdown: **A** = the shipped
-   wscript/VBS shim (must be flash-free), **B** = `cmd /c start /b` (flash
-   expected; observed for the record). It also prints the live returns of
-   `ReaPack_GetRepositoryInfo` — the one call U1 never exercised.
-3. Send Claude the full console output **plus your flash verdict for A and B**.
-   A clean = the shim's command line gets recorded in RESEARCH.md as proven.
-   A flashing = the badge feature stays parked; report and stop.
-
-Delete `<resource>/yb_05b_A.xml` and `yb_05b_B.xml` afterwards (the script
-deletes its own .vbs shim).
-
-### Installing the REAL tool from this shelf (checklist U12–U17)
-
-The live catalog now also serves **yb_Reference 0.2.0** (category "Tools",
-trees in `tool/`, built by `scripts/gen_tool_index.sh`). Install: Extensions →
-ReaPack → Browse packages… → search "yb_Reference" → right-click → Install
-v0.2.0 → OK/Apply. Run it from the Action list ("yb_Reference.lua" under the
-yb_update_test scripts). Do NOT pin it and do NOT install a version from the
-Versions submenu — picking a specific version pins it and wrecks the tests.
-
-**→ CHECKPOINT after installing:** tell Claude, who pushes the staged
-`index-tool-0.2.1.xml` live and confirms GitHub is serving it — only then do
-the badge/update items (U12 onward) have something to find. The 0.2.1 build's
-only real change: its title bar reads "yb_Reference 0.2.1", so a relaunch
-visibly runs the new code.
-
-## Cleanup (after the whole prototype)
-
-- ReaPack → Browse packages → right-click the dummy → Uninstall.
-- Manage repositories → select `yb_update_test` → Remove.
-- Restore the "Install new packages when synchronizing" checkbox to how it was.
-- Delete `<REAPER resource>/yb_update_check_test.xml` (script 05's download).
-- Tell Claude to delete this GitHub repo + the local folder.
-
-## For Claude (stage advances)
-
-`copy /y staging\index-1.1.xml index.xml` → commit `serve v1.1` → push → curl
-the raw index URL until it actually shows 1.1 (GitHub's raw CDN caches ~5 min).
-Same for 1.2. `1.3` is the spare — only if a stage got burned (e.g. U4 synced
-because the global checkbox was accidentally on).
+The real beta will be published separately as **yb-Reference 0.3.0** only after its frozen build passes the final clean-install gate.
