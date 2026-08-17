@@ -10,9 +10,9 @@
 --
 -- It fires after the RESTART, never before: an update swaps the files on disk
 -- while REAPER carries on running the old script, so notes shown at install time
--- describe a version the user does not yet have. The tool now restarts itself
--- the moment an update lands, and this card is the first thing the new code
--- draws. See yb-Reference.lua's "done" handling.
+-- describe a version the user does not yet have. The tool restarts itself only
+-- after ReaPack's report closes, and this card is the first thing the new code
+-- draws. See the updater heartbeat in yb-Reference.lua.
 --
 -- The reading layout is shared with the Settings > Updates history
 -- (`whatsnew.draw_release`), so the two surfaces cannot drift.

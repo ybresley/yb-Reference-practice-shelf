@@ -47,8 +47,8 @@ function popups.edit_popup(ctx, edit, id, title, key, opts)
 end
 
 -- (The post-update restart popup lived here from 2026-08-05 until 2026-08-08.
--- It is gone: an update now restarts the tool the moment it lands rather than
--- asking, and the What's New card greets the new code on the way back up —
+-- It is gone: closing ReaPack's report now restarts the tool rather than asking,
+-- and the What's New card greets the new code on the way back up —
 -- `ui/whatsnew.lua`, and the "done" handling in the entry script. Deleting it
 -- also removed this module's one piece of module-level state.)
 

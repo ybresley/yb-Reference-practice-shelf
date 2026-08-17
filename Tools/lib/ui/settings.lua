@@ -553,14 +553,42 @@ local function draw_updates(ctx, state)
   end
 
   -- The transaction-launched face appears immediately. It makes no claim that
-  -- the files landed; ReaPack's report is the authority until the next launch
-  -- can safely read the installed version.
+  -- the files landed; ReaPack's report is the authority. SWS watches that
+  -- native window, so closing it is also the deliberate restart gesture.
   if u.phase == "reopen" then
     row(ctx, "Version", "v" .. (u.installed or "?"),
       { value_color = T.ACCENT,
-        warn = "Update started. Close the ReaPack report, then close and reopen yb-Reference." })
+        warn = "Update started. Close the ReaPack report when it appears. yb-Reference will reopen automatically." })
     notes_row(ctx, state)
     return nil
+  end
+
+  if u.phase == "restarting" then
+    row(ctx, "Version", "v" .. (u.installed or "?"),
+      { value_color = T.ACCENT,
+        warn = "Update finished. Reopening yb-Reference…" })
+    notes_row(ctx, state)
+    return nil
+  end
+
+  if u.phase == "reopen_manual" then
+    row(ctx, "Version", "v" .. (u.installed or "?"),
+      { value_color = T.ACCENT,
+        warn = "Close the ReaPack report if it's still open, then close and reopen yb-Reference." })
+    notes_row(ctx, state)
+    return nil
+  end
+
+  if u.phase == "report_busy" then
+    if row(ctx, "Version", "v" .. (u.installed or "?"),
+      { value_color = T.ACCENT,
+        warn = "Close the open ReaPack report before starting this update.",
+        button = "Try Again",
+        button_tip = "Close the ReaPack report first, then try the update again." }) then
+      action = { type = "start_update" }
+    end
+    notes_row(ctx, state)
+    return action
   end
 
   -- A manual ReaPack update landed before this button was pressed.
@@ -591,7 +619,7 @@ local function draw_updates(ctx, state)
     opts.note = "Right-click it in Extensions \u{2192} ReaPack \u{2192} Browse packages and untick \"Pin to current version\"."
   elseif u.available then
     opts.button = "Update Now"
-    opts.button_tip = "ReaPack installs the update. Close its report, then close and reopen yb-Reference."
+    opts.button_tip = "ReaPack installs the update. Close its report when it appears; yb-Reference will then reopen automatically."
   end
   if u.phase == "failed_manual" then
     opts.warn = "The update couldn't be completed from here. Run Extensions \u{2192} ReaPack \u{2192} Synchronize packages instead."

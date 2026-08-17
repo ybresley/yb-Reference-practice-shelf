@@ -7,8 +7,9 @@
 -- quietly downloads the tool's own ReaPack catalog and, if a newer version is
 -- listed, lights the accent dot on the browser's gear; Settings' UPDATES
 -- section then offers "Update now", which makes ReaPack update JUST this tool
--- (its own Progress window shows), then asks for a close-and-reopen. The next
--- launch reads the installed version after ReaPack's report has closed. Every
+-- (its own Progress window shows). SWS watches that transaction's report
+-- window without touching ReaPack; once the report closes and ReaPack has had
+-- a cleanup grace period, the entry script restarts this tool from disk. Every
 -- check failure is silent by design — no badge is the only failure mode.
 --
 -- The whole feature stands down when this copy wasn't installed through ReaPack
@@ -57,6 +58,10 @@ local EXT_JOURNAL = "update_trick_recovery"
 
 local CHECK_EVERY    = 24 * 60 * 60 -- daily while open (design: tool startup + every 24h)
 local FETCH_TIMEOUT  = 20           -- U6: a fetch that hasn't landed by then never will; give up silently
+local REPORT_TIMEOUT = 120          -- never guess forever if the native report cannot be identified
+local REPORT_GRACE   = 0.5          -- window destruction precedes ReaPack's final transaction teardown
+local REPORT_CLASS   = "#32770"
+local REPORT_TITLE   = "Transaction report"
 
 -- What the UI reads (state.update in the entry script). One table for the whole
 -- session — mutated, never replaced, per the frame-allocation rules.
@@ -67,9 +72,12 @@ local FETCH_TIMEOUT  = 20           -- U6: a fetch that hasn't landed by then ne
 --   installed        the version ReaPack's registry says is installed
 --   available        a strictly newer catalog version, or nil (nil = no badge)
 --   pinned           the package is pinned in ReaPack (updates stand down)
---   phase            nil | "reopen" (the transaction was launched; no more
---                    ReaPack calls in this instance) | "done" (a manual update
---                    had already landed) | "failed_manual" (launch refused)
+--   phase            nil | "reopen" (the transaction was launched; SWS is
+--                    watching its report, with no more ReaPack calls) |
+--                    "restarting" | "reopen_manual" (watch/restart fallback) |
+--                    "report_busy" (an older report must be closed first) |
+--                    "done" (a manual update had already landed) |
+--                    "failed_manual" (launch refused)
 local S = {
   enabled = false, disabled_reason = nil,
   installed = nil, available = nil, pinned = false,
@@ -84,7 +92,64 @@ local P = {
   next_check = math.huge,
   fetching = false, fetch_deadline = 0,
   tmp = nil, vbs = nil,
+  report_hwnd = nil, report_deadline = 0, report_closed_at = nil,
 }
+
+local function can_watch_report()
+  return reaper.BR_Win32_FindWindowEx ~= nil
+    and reaper.BR_Win32_IsWindow ~= nil
+end
+
+-- ReaPack 1.2.6's own resource names this modal dialog exactly. SWS's BR_Win32
+-- calls only inspect native windows; they do not enter ReaPack or its registry,
+-- so they are allowed inside the post-ProcessQueue quarantine.
+local function find_report()
+  if not can_watch_report() then return nil end
+  local hwnd = reaper.BR_Win32_FindWindowEx(
+    0, 0, REPORT_CLASS, REPORT_TITLE, true, true)
+  if hwnd and reaper.BR_Win32_IsWindow(hwnd) then return hwnd end
+  return nil
+end
+
+local function begin_report_watch(now)
+  P.report_hwnd = nil
+  P.report_closed_at = nil
+  if can_watch_report() then
+    P.report_deadline = now + REPORT_TIMEOUT
+    S.phase = "reopen"
+  else
+    P.report_deadline = 0
+    S.phase = "reopen_manual"
+  end
+end
+
+local function tick_report(now)
+  if S.phase ~= "reopen" then return nil end
+
+  if not P.report_hwnd then
+    P.report_hwnd = find_report()
+    if P.report_hwnd then return nil end
+    if now >= P.report_deadline then S.phase = "reopen_manual" end
+    return nil
+  end
+
+  if reaper.BR_Win32_IsWindow(P.report_hwnd) then
+    P.report_closed_at = nil
+    return nil
+  end
+
+  -- Dialog::Show returns after the native window is destroyed, then ReaPack
+  -- deletes its transaction object. Waiting through several defer frames gives
+  -- that same-thread cleanup an unambiguous chance to finish before relaunch.
+  if not P.report_closed_at then
+    P.report_closed_at = now
+    return nil
+  end
+  if now - P.report_closed_at < REPORT_GRACE then return nil end
+
+  S.phase = "restarting"
+  return "restart"
+end
 
 -- ReaPack API retvals are true on success but have come back as false/0/nil in
 -- the prototype's failure probes — one rule for all of them (03's helper).
@@ -285,8 +350,10 @@ function updater.tick()
   -- The transaction owns ReaPack now. Even read-only registry calls aborted the
   -- real multi-file package while its entry was changing, so this is a complete
   -- extension-API quarantine until the user closes the report and reopens.
-  if S.phase == "reopen" then return end
   local now = reaper.time_precise()
+  if S.phase == "reopen" then return tick_report(now) end
+  if S.phase == "restarting" or S.phase == "reopen_manual"
+    or S.phase == "report_busy" then return end
 
   -- A fetch in flight: watch for the file. Only the closing tag counts — a
   -- partial file is still being written (U6's rule).
@@ -356,7 +423,8 @@ end
 -- up to a day). It stands down completely after an update starts: opening
 -- Settings must not punch through the post-launch ReaPack quarantine.
 function updater.refresh_registry()
-  if not S.enabled or S.phase == "reopen" then return end
+  if not S.enabled or S.phase == "reopen" or S.phase == "restarting"
+    or S.phase == "reopen_manual" or S.phase == "report_busy" then return end
   local reg = read_registry(P.own_path)
   if not reg then
     S.enabled, S.disabled_reason, S.available = false, "dev", nil
@@ -373,7 +441,16 @@ end
 -- packages" checkbox (usually off) and the gate closes, syncing nothing (U4).
 -- After the second ProcessQueue begins, this instance never calls ReaPack again.
 function updater.start_update()
-  if not S.enabled or S.phase == "reopen" then return end
+  if not S.enabled or S.phase == "reopen" or S.phase == "restarting"
+    or S.phase == "reopen_manual" then return end
+
+  -- A report already open belongs to an older ReaPack transaction. Starting a
+  -- second update inside that modal lifetime would defeat both the safety proof
+  -- and the identity of the window we are about to watch.
+  if find_report() then
+    S.phase = "report_busy"
+    return
+  end
 
   -- Fresh looks at everything the trick rides on — session-old answers could
   -- have changed underneath us (a pin set five minutes ago, a manual sync, the
@@ -454,7 +531,13 @@ function updater.start_update()
   -- repo is already enabled and deliberately remains at autoInstall=1.
   local q2 = pcall(reaper.ReaPack_ProcessQueue, true)
   if q2 then clear_journal() end
-  S.phase = "reopen"
+  begin_report_watch(reaper.time_precise())
+end
+
+-- The entry script calls this only if REAPER's self-restart mechanism was
+-- unavailable or returned without actually terminating the old instance.
+function updater.restart_unavailable()
+  if S.phase == "restarting" then S.phase = "reopen_manual" end
 end
 
 return updater

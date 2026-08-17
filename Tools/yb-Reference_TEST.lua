@@ -1,5 +1,5 @@
 -- @description yb-Reference TEST · packaging rehearsal
--- @version 0.2.17
+-- @version 0.2.18
 -- @author Yoni Bresley
 -- @about
 --   TEST package for clean-install and update rehearsals.
@@ -22,7 +22,7 @@
 --   [nomain] assets/windows/folder_picker.vbs
 --   [nomain] CHANGELOG.md
 --   [main] yb-Reference_TEST_ToggleReferenceMode.lua
-
+--
 -- RELEASE NOTES ARE GENERATED — never hand-write them here. CHANGELOG.md is the
 -- single source of truth (2026-08-08); `lua scripts/gen_header.lua` writes the
 -- changelog tag and its block directly under the packing list above, and the tool reads
@@ -57,7 +57,7 @@ local script_path = debug.getinfo(1, "S").source:sub(2) -- strip the leading "@"
 local root = script_path:match("^(.*)[\\/]") or "."
 
 -- The action id this tool is running as (get_action_context return #4) — what
--- the post-update "Restart now" button re-invokes. For a dev slot launched
+-- the post-update report watcher re-invokes. For a dev slot launched
 -- through its wrapper action this is the WRAPPER's id, which is exactly right:
 -- restarting re-runs whatever the user actually launched. 0 when there is no
 -- real action (run from a console), which disables the restart offer.
@@ -675,10 +675,10 @@ local state = {
 
 -- What's New, decided once at startup (2026-08-08, `.brief/_done/changelog/`).
 --
--- Since an update now RESTARTS the tool the moment it lands, "the first frame of
--- a version whose notes haven't been read" is exactly the moment after an
--- update — no popup has to be timed against ReaPack's install, and everything
--- the card describes is code that is already running.
+-- Since an update restarts the tool after ReaPack's report closes, "the first
+-- frame of a version whose notes haven't been read" is exactly the safe moment
+-- after an update — no popup has to be timed against ReaPack's install, and
+-- everything the card describes is code that is already running.
 --
 -- A first-ever run stamps the mark SILENTLY and shows nothing: greeting a new
 -- user with the notes for versions they never had would read as a fault. That is
@@ -2239,6 +2239,10 @@ local walk_browser_was = false
 -- very thing being ringed. nil while inactive so a replay can't inherit a
 -- stale position.
 local walk_pos_was = nil
+-- A successful self-restart should terminate this instance immediately. If
+-- REAPER accepts the command but leaves the old loop alive, turn the status
+-- into a manual fallback instead of claiming that reopening is still underway.
+local update_restart_fallback_at = nil
 
 local function loop()
   -- The modern Windows folder dialog runs in a helper process. Polling its tiny
@@ -2386,11 +2390,21 @@ local function loop()
   -- Measure loudness in the background, one pass per frame.
   step_analysis()
 
-  -- The update feature's heartbeat: three compares on an idle frame; a file
-  -- poll only while its daily catalog fetch is in flight, a registry poll only
-  -- while an update is being verified. Never blocks (the download runs in a
-  -- separate process; ReaPack's own sync shows its own Progress window).
-  updater.tick()
+  -- The update feature's heartbeat. During an update it makes no ReaPack calls:
+  -- SWS watches the native transaction report, then asks this defer-level owner
+  -- to relaunch only after that report has closed and its cleanup grace elapsed.
+  local update_intent = updater.tick()
+  if update_intent == "restart" then
+    if reaper_api.restart_self(CMD_ID) then
+      update_restart_fallback_at = reaper.time_precise() + 1
+    else
+      updater.restart_unavailable()
+    end
+  elseif update_restart_fallback_at
+    and reaper.time_precise() >= update_restart_fallback_at then
+    update_restart_fallback_at = nil
+    updater.restart_unavailable()
+  end
 
   -- The feedback sender's heartbeat: one compare on an idle frame; a reply-file
   -- poll only while a report is in flight, time-bounded under 10 s. The curl
@@ -2507,11 +2521,6 @@ local function loop()
   else
     walk_pos_was = nil
   end
-
-  -- A launched ReaPack update deliberately does NOT relaunch from here. The
-  -- updater quarantines every ReaPack API while the transaction report is open;
-  -- a fresh instance must not enter that transaction either. Settings keeps the
-  -- old instance on a clear close-report-then-reopen instruction instead.
 
   -- Hand keyboard focus back to REAPER when the frame says the tool has no
   -- further claim on it (a finished click outside the browsing panes — see

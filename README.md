@@ -23,9 +23,9 @@ Search for **ToggleReferenceMode** in the Action List to find the companion TEST
 
 ## Current rehearsal
 
-- TEST package: **0.2.17**
-- Source snapshot: ReaPack-quarantine commit `0a30f27`
-- Automated checks: **701 passed, 0 failed**
+- TEST package: **0.2.18**
+- Source snapshot: report-close restart commit `584d502`
+- Automated checks: **706 passed, 0 failed**
 
 Every changed TEST build gets a new version number. Existing versions are not silently replaced, so an installed copy and its feedback reports can always be identified.
 

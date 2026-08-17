@@ -321,8 +321,8 @@ function app.frame(ctx, state)
     end
 
     -- (The post-update restart popup used to be announced from here. It is gone:
-    -- an update now restarts the tool the moment it lands, and the What's New
-    -- card greets the new code on the way back up — see whatsnew.draw below.)
+    -- closing ReaPack's report safely restarts the tool, and the What's New card
+    -- greets the new code on the way back up — see whatsnew.draw below.)
 
     -- The walkthrough's pin stop rings the WHOLE window — it is one big
     -- drop-to-pin target, and the ring finally shows the gesture.
