@@ -23,7 +23,7 @@ Search for **ToggleReferenceMode** in the Action List to find the companion TEST
 
 ## Current rehearsal
 
-- TEST package: **0.2.16**
+- TEST package: **0.2.17**
 - Source snapshot: ReaPack-quarantine commit `0a30f27`
 - Automated checks: **701 passed, 0 failed**
 
