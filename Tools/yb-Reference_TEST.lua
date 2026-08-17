@@ -1,5 +1,5 @@
 -- @description yb-Reference TEST · packaging rehearsal
--- @version 0.2.14
+-- @version 0.2.15
 -- @author Yoni Bresley
 -- @about
 --   TEST package for clean-install and update rehearsals.
@@ -44,7 +44,7 @@
 
 -- A second launch closes this running copy instead of starting another one.
 -- Cleanup still runs, so reference mode is restored and previews are stopped.
--- The updater overrides this only when it deliberately relaunches updated code.
+-- Library recovery overrides this only when it deliberately reloads the tool.
 if reaper.set_action_options then reaper.set_action_options(1) end
 
 --------------------------------------------------------------- module path
@@ -659,11 +659,6 @@ local state = {
   -- display fields were filled at startup above). Settings' HELP section reads
   -- it and reports "send_feedback" back.
   feedback       = feedback.state,
-  -- Whether a landed update may finish itself by restarting the tool (REAPER 7's
-  -- relaunch mechanism + a real action id to re-invoke). Without it the update
-  -- ends on Settings' "close and reopen the tool" line instead, and the What's
-  -- New card waits until the user does.
-  can_restart    = reaper_api.can_restart() and CMD_ID ~= nil and CMD_ID ~= 0,
   -- The parsed CHANGELOG.md (2026-08-08). Read ONCE here — a file read, and the
   -- text never changes while the tool runs. Both surfaces that show release
   -- notes read this same list: the What's New card and Settings > Updates.
@@ -2233,11 +2228,6 @@ reaper.atexit(function()
   dragout.hide_ghost()
 end)
 
--- Whether the post-update restart has already been asked for. A REAPER without
--- the relaunch mechanism can't do it, and retrying every frame would be noise
--- with no chance of a different answer.
-local restart_asked = false
-
 -- The browser's open/closed EDGE feeds the walkthrough (stop 1 advances on the
 -- real open; a browser stop freezes while it's closed). Watched here, on the
 -- state itself, because more than one action can change it (toggle, Esc, the
@@ -2518,25 +2508,12 @@ local function loop()
     walk_pos_was = nil
   end
 
-  -- A landed update finishes ITSELF (2026-08-08, `.brief/_done/changelog/` — this
-  -- replaces the "Restart now / Later" popup, which is deleted).
-  --
-  -- ReaPack has swapped the files on disk while THIS instance carries on running
-  -- the old code, so the restart was never optional — the old popup only chose
-  -- whether to offer it. An update also only ever starts because the user
-  -- pressed Update now, so there is nothing left to ask. REAPER terminates this
-  -- instance (atexit runs: previews stopped, reference mode restored, so a
-  -- latched project is never left muted) and starts a fresh one from the updated
-  -- files; that run's startup shows the What's New card. Code after this call
-  -- may simply never run — nothing below depends on it.
-  --
-  -- Asked ONCE. A REAPER without the relaunch mechanism leaves the update on
-  -- Settings' "close and reopen the tool" line, which is the honest fallback
-  -- rather than a retry on every frame that can only fail the same way.
-  if state.update.phase == "done" and state.can_restart and not restart_asked then
-    restart_asked = true
-    reaper_api.restart_self(CMD_ID)
-  end
+  -- A landed ReaPack update deliberately does NOT relaunch from here. The
+  -- transaction report can remain open after the registry version advances;
+  -- relaunching then makes updater.init replay its recovery write while ReaPack
+  -- still owns that transaction, which aborts REAPER. Settings keeps the old
+  -- instance on a clear close-report-then-reopen instruction instead.
+
   -- Hand keyboard focus back to REAPER when the frame says the tool has no
   -- further claim on it (a finished click outside the browsing panes — see
   -- ui/focus.lua for the rules). This is what keeps the user's REAPER hotkeys

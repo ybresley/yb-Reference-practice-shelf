@@ -23,8 +23,8 @@ Search for **ToggleReferenceMode** in the Action List to find the companion TEST
 
 ## Current rehearsal
 
-- TEST package: **0.2.14**
-- Source snapshot: clean `main` commit `fbcf00c`
+- TEST package: **0.2.15**
+- Source snapshot: updater crash-fix commit `94ba5a1`
 - Automated checks: **700 passed, 0 failed**
 
 Every changed TEST build gets a new version number. Existing versions are not silently replaced, so an installed copy and its feedback reports can always be identified.

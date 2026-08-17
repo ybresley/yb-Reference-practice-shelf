@@ -626,15 +626,14 @@ function reaper_api.can_restart()
   return reaper.set_action_options ~= nil and reaper.Main_OnCommand ~= nil
 end
 
--- Restart the tool (the post-update popup's one-click finish). Armed HERE, at
--- restart time, not at startup — so an ordinary re-run of the action while the
--- tool is open keeps REAPER's default behaviour. The re-invoke makes REAPER
--- terminate this instance (its atexit cleanup runs: previews stopped,
--- reference mode restored) and launch a fresh one, which loads the CURRENT
--- files from disk — the updated code. Call from the defer level, the exact
--- shape the probe proved. Returns false when the mechanism (or a real command
--- id) is missing; the UI shouldn't have offered the button then
--- (state.can_restart), so this refusal is belt-and-braces.
+-- Restart the tool after a flow that is safe to relaunch, currently library
+-- recovery. Never use this while a ReaPack transaction report is open. Armed
+-- HERE, not at startup, so an ordinary re-run while the tool is open keeps
+-- REAPER's default behaviour. The re-invoke terminates this instance (atexit
+-- runs, so previews stop and reference mode is restored) and launches a fresh
+-- one from the current files. Call from the defer level, the exact shape the
+-- probe proved. Returns false when the mechanism or command id is missing, so
+-- the caller can show its manual fallback.
 function reaper_api.restart_self(cmd_id)
   if not reaper_api.can_restart() then return false end
   if not cmd_id or cmd_id == 0 then return false end

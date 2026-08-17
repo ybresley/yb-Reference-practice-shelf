@@ -552,14 +552,13 @@ local function draw_updates(ctx, state)
     return nil
   end
 
-  -- The post-update face. Reached only where the tool COULDN'T restart itself
-  -- (an old REAPER, or no real action id): everywhere else a landed update
-  -- relaunches immediately and this section never draws in the "done" state.
-  -- The files on disk are new and this running code is old — live-proven U7 —
-  -- so the reminder stands until the user closes and reopens.
+  -- The post-update face. The files on disk are new and this running code is
+  -- old — live-proven U7 — but the tool must not relaunch while ReaPack's
+  -- transaction report is open. The user closes that report first, then
+  -- reopens the tool after ReaPack has fully left the transaction.
   if u.phase == "done" then
     row(ctx, "Version", "v" .. (u.installed or "?"),
-      { value_color = T.ACCENT, warn = "Updated. Close and reopen the tool to finish." })
+      { value_color = T.ACCENT, warn = "Updated. Close the ReaPack report. Then close and reopen yb-Reference." })
     notes_row(ctx, state)
     return nil
   end
@@ -588,12 +587,7 @@ local function draw_updates(ctx, state)
       opts.button_tip = "ReaPack is installing the update. Its progress window shows the details."
     else
       opts.button = "Update Now"
-      -- The promise follows the machine (Codex, 2026-08-09): with the relaunch
-      -- mechanism the tool finishes the update itself; without it the old
-      -- close-and-reopen wording stays the honest one.
-      opts.button_tip = state.can_restart
-        and "ReaPack installs the yb-Reference update, then the tool restarts."
-        or "ReaPack installs the yb-Reference update, then you close and reopen the tool."
+      opts.button_tip = "ReaPack installs the update. Close its report, then close and reopen yb-Reference."
     end
   end
   if u.phase == "failed_browser" then

@@ -30,8 +30,9 @@
 -- build restored autoInstall the moment its poll saw the version advance —
 -- inside ReaPack's still-closing transaction — and REAPER died with a VC++
 -- runtime abort. On success (and on verify-timeout) the journal deliberately
--- outlives the session: the restore IS the next launch's init() replay, run
--- when no transaction can possibly exist. Until then the repo sits enabled at
+-- outlives the session. The user closes ReaPack's transaction report before
+-- reopening the tool; only that later init() replay restores the setting.
+-- Until then the repo sits enabled at
 -- autoInstall=1, which is benign — that setting only affects never-installed
 -- packages of OUR repo, and everything it ships is installed.
 --
@@ -133,7 +134,7 @@ end
 -- Put the repo back to its everyday shape: enabled, auto-install following the
 -- global setting. Completely silent (U5), and identical to the U9 crash
 -- recovery. The journal is cleared ONLY when both calls land — left standing,
--- the next startup replays this.
+-- a later safe startup replays this.
 local function restore_repo(name, url)
   local a_ok, a_ret = pcall(reaper.ReaPack_AddSetRepository, name, url, true, 2)
   if not ok_ret(a_ok, a_ret) then return false end
@@ -296,8 +297,9 @@ function updater.tick()
         -- Success — and deliberately NOTHING but this read touches ReaPack
         -- (the hard rule in the header: the first build's restore here, half
         -- a second into the transaction's wrap-up, aborted REAPER live). The
-        -- journal stays standing; the "close and reopen to finish" the done
-        -- row asks for is also what completes the restore, via init().
+        -- journal stays standing; the done row tells the user to close
+        -- ReaPack's report before reopening, and that later init() completes
+        -- the restore.
         S.installed, S.pinned = reg.version, reg.pinned
         S.available = nil -- the dot's job is done
         S.phase = "done"
@@ -307,7 +309,7 @@ function updater.tick()
     if now >= P.verify_deadline then
       -- Same hard rule on the way out: a timeout can MEAN the transaction is
       -- still alive (a slow network mid-download), so no config writes from
-      -- here either — the standing journal has the next launch put things
+      -- here either — after the report closes, a later launch puts things
       -- back. Opening the browser below is view-only, something users do
       -- during syncs by hand anyway.
       --
