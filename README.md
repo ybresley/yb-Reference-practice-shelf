@@ -23,7 +23,7 @@ Search for **ToggleReferenceMode** in the Action List to find the companion TEST
 
 ## Current rehearsal
 
-- TEST package: **0.2.12**
+- TEST package: **0.2.13**
 - Source snapshot: clean `main` commit `fbcf00c`
 - Automated checks: **700 passed, 0 failed**
 
