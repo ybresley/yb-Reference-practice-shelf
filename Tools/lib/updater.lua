@@ -7,9 +7,9 @@
 -- quietly downloads the tool's own ReaPack catalog and, if a newer version is
 -- listed, lights the accent dot on the browser's gear; Settings' UPDATES
 -- section then offers "Update now", which makes ReaPack update JUST this tool
--- (its own Progress window shows), verifies the new version really landed, and
--- asks for a close-and-reopen. Every check failure is silent by design — no
--- badge is the only failure mode the user ever sees.
+-- (its own Progress window shows), then asks for a close-and-reopen. The next
+-- launch reads the installed version after ReaPack's report has closed. Every
+-- check failure is silent by design — no badge is the only failure mode.
 --
 -- The whole feature stands down when this copy wasn't installed through ReaPack
 -- (dev copies have no registry owner — U1), and start_update refuses while the
@@ -25,16 +25,20 @@
 -- standing. The journal, not atexit, is the real safety net — atexit never
 -- runs on a crash.
 --
--- HARD RULE, learned live (2026-08-05, U14): once ProcessQueue has queued the
--- sync, this running instance NEVER touches ReaPack's config again. The first
--- build restored autoInstall the moment its poll saw the version advance —
--- inside ReaPack's still-closing transaction — and REAPER died with a VC++
--- runtime abort. On success (and on verify-timeout) the journal deliberately
--- outlives the session. The user closes ReaPack's transaction report before
--- reopening the tool; only that later init() replay restores the setting.
--- Until then the repo sits enabled at
--- autoInstall=1, which is benign — that setting only affects never-installed
--- packages of OUR repo, and everything it ships is installed.
+-- HARD RULE, learned live (2026-08-05 U14, then twice in the packaged gate on
+-- 2026-08-17): once the second ProcessQueue call starts the sync, this running
+-- instance makes ZERO further ReaPack calls — reads included. The one-file
+-- prototype tolerated registry polling, but the real 59-file package aborted
+-- REAPER while GetOwner/GetEntryInfo polled its changing entry. Removing the
+-- later config write and automatic restart did not stop that second abort;
+-- removing every post-launch ReaPack call is the smallest honest boundary.
+--
+-- A successful launch clears the crash journal immediately and deliberately
+-- leaves this one-package repo enabled with autoInstall=1. That setting only
+-- affects never-installed packages from this repo, and the repo contains only
+-- yb-Reference, which is already installed. The journal now survives only an
+-- actual failure/crash inside the disable -> re-enable launch window; a later
+-- safe startup can still repair that exceptional state.
 --
 -- An adapter, so it calls reaper.* freely; the catalog parsing and version
 -- maths live in core/update_check (pure, unit-tested). This module is spec'd
@@ -53,8 +57,6 @@ local EXT_JOURNAL = "update_trick_recovery"
 
 local CHECK_EVERY    = 24 * 60 * 60 -- daily while open (design: tool startup + every 24h)
 local FETCH_TIMEOUT  = 20           -- U6: a fetch that hasn't landed by then never will; give up silently
-local VERIFY_EVERY   = 0.5          -- registry re-read cadence while the sync runs (03's poll)
-local VERIFY_TIMEOUT = 90           -- 03's ceiling: the update landed in 1s live; 90s covers slow networks
 
 -- What the UI reads (state.update in the entry script). One table for the whole
 -- session — mutated, never replaced, per the frame-allocation rules.
@@ -65,10 +67,9 @@ local VERIFY_TIMEOUT = 90           -- 03's ceiling: the update landed in 1s liv
 --   installed        the version ReaPack's registry says is installed
 --   available        a strictly newer catalog version, or nil (nil = no badge)
 --   pinned           the package is pinned in ReaPack (updates stand down)
---   phase            nil | "sync" (update running) | "done" (landed — close and
---                    reopen) | "failed_browser" (didn't land; ReaPack's browser
---                    was opened pre-filtered to this tool) | "failed_manual"
---                    (didn't land and even that fallback wasn't possible)
+--   phase            nil | "reopen" (the transaction was launched; no more
+--                    ReaPack calls in this instance) | "done" (a manual update
+--                    had already landed) | "failed_manual" (launch refused)
 local S = {
   enabled = false, disabled_reason = nil,
   installed = nil, available = nil, pinned = false,
@@ -83,7 +84,6 @@ local P = {
   next_check = math.huge,
   fetching = false, fetch_deadline = 0,
   tmp = nil, vbs = nil,
-  old_version = nil, verify_at = 0, verify_deadline = 0,
 }
 
 -- ReaPack API retvals are true on success but have come back as false/0/nil in
@@ -279,55 +279,14 @@ function updater.init(own_path)
 end
 
 -- Every defer frame. Costs three compares on an idle frame; the file poll runs
--- only while a fetch is in flight (U6: ~20 frames), the registry poll only
--- while an update is being verified, and both are time-bounded.
+-- only while a fetch is in flight (U6: ~20 frames) and is time-bounded.
 function updater.tick()
   if not S.enabled then return end
+  -- The transaction owns ReaPack now. Even read-only registry calls aborted the
+  -- real multi-file package while its entry was changing, so this is a complete
+  -- extension-API quarantine until the user closes the report and reopens.
+  if S.phase == "reopen" then return end
   local now = reaper.time_precise()
-
-  -- An update in flight: poll the registry until the installed version really
-  -- advances (03's verify — never claim success without CompareVersions > 0).
-  if S.phase == "sync" then
-    if now < P.verify_at then return end
-    P.verify_at = now + VERIFY_EVERY
-    local reg = read_registry(P.own_path)
-    if reg and reg.version ~= P.old_version then
-      local c_ok, c = pcall(reaper.ReaPack_CompareVersions, reg.version, P.old_version)
-      if c_ok and type(c) == "number" and c > 0 then
-        -- Success — and deliberately NOTHING but this read touches ReaPack
-        -- (the hard rule in the header: the first build's restore here, half
-        -- a second into the transaction's wrap-up, aborted REAPER live). The
-        -- journal stays standing; the done row tells the user to close
-        -- ReaPack's report before reopening, and that later init() completes
-        -- the restore.
-        S.installed, S.pinned = reg.version, reg.pinned
-        S.available = nil -- the dot's job is done
-        S.phase = "done"
-        return
-      end
-    end
-    if now >= P.verify_deadline then
-      -- Same hard rule on the way out: a timeout can MEAN the transaction is
-      -- still alive (a slow network mid-download), so no config writes from
-      -- here either — after the report closes, a later launch puts things
-      -- back. Opening the browser below is view-only, something users do
-      -- during syncs by hand anyway.
-      --
-      -- Fallback: ReaPack's browser pre-filtered to exactly this package (U8's
-      -- proven desc-form filter) so the user can right-click -> Update. The
-      -- browser reads ReaPack's local catalog cache, which only the sync
-      -- refreshes — if the sync itself never ran, the row may offer nothing,
-      -- which is why the UI's failure text ends with the manual path either
-      -- way (U8's lesson).
-      local opened = false
-      if reaper.APIExists("ReaPack_BrowsePackages")
-        and type(P.desc) == "string" and P.desc ~= "" and not P.desc:find('"', 1, true) then
-        opened = pcall(reaper.ReaPack_BrowsePackages, '^"' .. P.desc .. '"$ ^"' .. P.repo .. '"$')
-      end
-      S.phase = opened and "failed_browser" or "failed_manual"
-    end
-    return -- the daily check stands down while an update runs
-  end
 
   -- A fetch in flight: watch for the file. Only the closing tag counts — a
   -- partial file is still being written (U6's rule).
@@ -394,11 +353,10 @@ end
 -- A fresh registry read for the display fields — called when Settings opens, so
 -- the version line and the pinned state describe NOW, not the last daily check
 -- (unpinning in ReaPack would otherwise leave Settings claiming "paused" for
--- up to a day). Cheap (three ReaPack calls), and display-only: it never touches
--- a running update's own bookkeeping (the verify compares against its own
--- snapshot, P.old_version).
+-- up to a day). It stands down completely after an update starts: opening
+-- Settings must not punch through the post-launch ReaPack quarantine.
 function updater.refresh_registry()
-  if not S.enabled then return end
+  if not S.enabled or S.phase == "reopen" then return end
   local reg = read_registry(P.own_path)
   if not reg then
     S.enabled, S.disabled_reason, S.available = false, "dev", nil
@@ -413,9 +371,9 @@ end
 -- sync scoped to our repo alone (ReaPack's own Progress window shows). The
 -- autoInstall on the re-enable MUST be 1 — 2 defers to the global "install new
 -- packages" checkbox (usually off) and the gate closes, syncing nothing (U4).
--- tick() then verifies the version really advanced before claiming success.
+-- After the second ProcessQueue begins, this instance never calls ReaPack again.
 function updater.start_update()
-  if not S.enabled or S.phase == "sync" then return end
+  if not S.enabled or S.phase == "reopen" then return end
 
   -- Fresh looks at everything the trick rides on — session-old answers could
   -- have changed underneath us (a pin set five minutes ago, a manual sync, the
@@ -473,21 +431,30 @@ function updater.start_update()
     return
   end
   local q1 = pcall(reaper.ReaPack_ProcessQueue, true)
-  local e_ok, e_ret = pcall(reaper.ReaPack_AddSetRepository, P.repo, P.url, true, 1)
-  local q2 = pcall(reaper.ReaPack_ProcessQueue, true)
-  if not (q1 and ok_ret(e_ok, e_ret) and q2) then
-    -- Failed with the repo possibly sitting disabled — the crash window made
-    -- real. Same medicine: restore now; if that fails too, the journal stays
-    -- and init() replays the U9 recovery next startup.
+  if not q1 then
+    -- No sync was requested: this queue only applied the disabled state, so an
+    -- immediate restore is safe. The journal remains if that repair also fails.
     restore_repo(P.repo, P.url)
     S.phase = "failed_manual"
     return
   end
 
-  P.old_version = reg.version
-  P.verify_at = 0
-  P.verify_deadline = reaper.time_precise() + VERIFY_TIMEOUT
-  S.phase = "sync"
+  local e_ok, e_ret = pcall(reaper.ReaPack_AddSetRepository, P.repo, P.url, true, 1)
+  if not ok_ret(e_ok, e_ret) then
+    -- Still before the sync request, so restoring now cannot overlap one.
+    restore_repo(P.repo, P.url)
+    S.phase = "failed_manual"
+    return
+  end
+
+  -- From this call onward: ZERO ReaPack APIs in this instance. Even if pcall
+  -- reports an error, the extension may have started enough work that another
+  -- call would race it. The standing journal then repairs the repo only on a
+  -- later launch; a normal successful return can clear the note because the
+  -- repo is already enabled and deliberately remains at autoInstall=1.
+  local q2 = pcall(reaper.ReaPack_ProcessQueue, true)
+  if q2 then clear_journal() end
+  S.phase = "reopen"
 end
 
 return updater

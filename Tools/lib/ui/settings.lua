@@ -552,13 +552,21 @@ local function draw_updates(ctx, state)
     return nil
   end
 
-  -- The post-update face. The files on disk are new and this running code is
-  -- old — live-proven U7 — but the tool must not relaunch while ReaPack's
-  -- transaction report is open. The user closes that report first, then
-  -- reopens the tool after ReaPack has fully left the transaction.
+  -- The transaction-launched face appears immediately. It makes no claim that
+  -- the files landed; ReaPack's report is the authority until the next launch
+  -- can safely read the installed version.
+  if u.phase == "reopen" then
+    row(ctx, "Version", "v" .. (u.installed or "?"),
+      { value_color = T.ACCENT,
+        warn = "Update started. Close the ReaPack report, then close and reopen yb-Reference." })
+    notes_row(ctx, state)
+    return nil
+  end
+
+  -- A manual ReaPack update landed before this button was pressed.
   if u.phase == "done" then
     row(ctx, "Version", "v" .. (u.installed or "?"),
-      { value_color = T.ACCENT, warn = "Updated. Close the ReaPack report. Then close and reopen yb-Reference." })
+      { value_color = T.ACCENT, warn = "Updated. Close and reopen yb-Reference." })
     notes_row(ctx, state)
     return nil
   end
@@ -582,18 +590,10 @@ local function draw_updates(ctx, state)
     opts.warn = "Paused. This tool is pinned in ReaPack."
     opts.note = "Right-click it in Extensions \u{2192} ReaPack \u{2192} Browse packages and untick \"Pin to current version\"."
   elseif u.available then
-    if u.phase == "sync" then
-      opts.button, opts.dead = "Updating\u{2026}", true
-      opts.button_tip = "ReaPack is installing the update. Its progress window shows the details."
-    else
-      opts.button = "Update Now"
-      opts.button_tip = "ReaPack installs the update. Close its report, then close and reopen yb-Reference."
-    end
+    opts.button = "Update Now"
+    opts.button_tip = "ReaPack installs the update. Close its report, then close and reopen yb-Reference."
   end
-  if u.phase == "failed_browser" then
-    opts.warn = "The update wasn't completed. ReaPack's package browser is open to this tool. Right-click its row and choose Update."
-    opts.note = "If no update is listed, run Extensions \u{2192} ReaPack \u{2192} Synchronize packages."
-  elseif u.phase == "failed_manual" then
+  if u.phase == "failed_manual" then
     opts.warn = "The update couldn't be completed from here. Run Extensions \u{2192} ReaPack \u{2192} Synchronize packages instead."
   end
 

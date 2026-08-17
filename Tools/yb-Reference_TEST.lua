@@ -1,5 +1,5 @@
 -- @description yb-Reference TEST · packaging rehearsal
--- @version 0.2.15
+-- @version 0.2.16
 -- @author Yoni Bresley
 -- @about
 --   TEST package for clean-install and update rehearsals.
@@ -2508,11 +2508,10 @@ local function loop()
     walk_pos_was = nil
   end
 
-  -- A landed ReaPack update deliberately does NOT relaunch from here. The
-  -- transaction report can remain open after the registry version advances;
-  -- relaunching then makes updater.init replay its recovery write while ReaPack
-  -- still owns that transaction, which aborts REAPER. Settings keeps the old
-  -- instance on a clear close-report-then-reopen instruction instead.
+  -- A launched ReaPack update deliberately does NOT relaunch from here. The
+  -- updater quarantines every ReaPack API while the transaction report is open;
+  -- a fresh instance must not enter that transaction either. Settings keeps the
+  -- old instance on a clear close-report-then-reopen instruction instead.
 
   -- Hand keyboard focus back to REAPER when the frame says the tool has no
   -- further claim on it (a finished click outside the browsing panes — see
